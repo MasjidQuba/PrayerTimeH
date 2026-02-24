@@ -63,4 +63,171 @@
         .bottom-row { display: flex; gap: 20px; margin-top: 20px; flex-grow: 1; min-height: 0; }
         
         .hadith-container { 
-            flex: 2
+            flex: 2.5; background: var(--primary-blue); border-radius: 25px; 
+            padding: 25px 40px; color: white; border: 4px solid var(--gold); 
+            display: flex; flex-direction: column; justify-content: center; text-align: center;
+        }
+        .ar-text { font-family: 'Amiri', serif; font-size: 2rem; direction: rtl; margin-bottom: 15px; line-height: 1.3; }
+        .en-text { font-size: 1.6rem; font-style: italic; color: var(--gold); font-weight: 700; line-height: 1.2; }
+
+        .donation-box { 
+            flex: 1; background: white; border-radius: 25px; border: 4px solid var(--gold); 
+            display: flex; align-items: center; justify-content: space-around; padding: 20px;
+        }
+        .qr-img { height: 180px; border: 3px solid var(--primary-blue); border-radius: 15px; }
+
+        .footer { 
+            text-align: center; font-size: 1.3rem; color: var(--gold); 
+            background: var(--primary-blue); margin-top: 15px; padding: 8px; border-radius: 15px;
+            font-weight: 700;
+        }
+    </style>
+</head>
+<body class="theme-day">
+
+<div class="header-box">
+    <img src="Muhammad.png" class="header-img" onclick="location.reload()" title="Click to Refresh">
+    <div class="clock-section">
+        <div style="text-align: right;">
+            <div id="greg-date" style="font-size: 1.4rem; font-weight: 900;">-- --- ----</div>
+            <div id="hijri" style="color: var(--gold); font-size: 1.2rem; font-weight: 700;">-- --- ----</div>
+        </div>
+        <div id="clock">00:00:00 AM</div>
+        <div>
+            <div id="temp" style="font-weight: 900; font-size: 2rem;">--°C</div>
+            <div id="city-name" style="font-size: 1rem; color: var(--gold); text-transform: uppercase; font-weight: 800;">Whitby</div>
+        </div>
+    </div>
+    <img src="Allah.png" class="header-img">
+</div>
+
+<div class="prayer-container" id="prayer-cards">
+    </div>
+
+<div class="bottom-row">
+    <div class="hadith-container">
+        <div class="ar-text" id="ar-hadith">الْحَمْدُ لِلَّهِ</div>
+        <div class="en-text" id="en-hadith">Loading Hadith...</div>
+    </div>
+
+    <div class="donation-box">
+        <img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=https://www.ajaxmasjid.ca" class="qr-img">
+        <div style="text-align: center;">
+            <div style="font-size: 1.4rem; font-weight: 900; color: var(--primary-blue); margin-bottom: 5px;">DONATE</div>
+            <div id="percent-text" style="font-size: 3rem; font-weight: 900; color: var(--gold); line-height: 1;">7.1%</div>
+            <div style="font-size: 1rem; font-weight: 800; color: #444;">OF $1.4M GOAL</div>
+        </div>
+    </div>
+</div>
+
+<div class="footer" id="ramadan-countdown">info@ajaxmasjid.ca | www.ajaxmasjid.ca</div>
+
+<script>
+    // Configuration
+    const iqamaTimes = { Fajr: "6:15 AM", Dhuhr: "1:00 PM", Asr: "4:30 PM", Isha: "8:00 PM" };
+    const salahList = [{id:'Fajr',ar:'الفجر'},{id:'Sunrise',ar:'الشروق'},{id:'Dhuhr',ar:'الظهر'},{id:'Asr',ar:'العصر'},{id:'Maghrib',ar:'المغرب'},{id:'Isha',ar:'العشاء'}];
+    let nextRefresh = 900; // Hadith refresh counter
+
+    function format12Hour(timeStr) {
+        if (!timeStr) return "--:--";
+        let [h, m] = timeStr.split(':').map(Number);
+        const ampm = h >= 12 ? 'PM' : 'AM';
+        h = h % 12 || 12;
+        return `${h}:${m.toString().padStart(2, '0')} ${ampm}`;
+    }
+
+    async function updateData() {
+        const lat = 43.8975, lng = -78.9429; // Fixed Whitby Coordinates
+
+        // Fetch Weather
+        try {
+            const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,is_day,weather_code&timezone=America/Toronto`);
+            const wData = await wRes.json();
+            document.getElementById('temp').innerText = Math.round(wData.current.temperature_2m) + "°C";
+            const b = document.body;
+            b.classList.remove('theme-day','theme-night','theme-cloudy');
+            if (wData.current.weather_code >= 3) b.classList.add('theme-cloudy');
+            else if (wData.current.is_day) b.classList.add('theme-day');
+            else b.classList.add('theme-night');
+        } catch (e) { console.error("Weather Error", e); }
+
+        // Fetch Prayer Times (15-degree Fajr calculation)
+        try {
+            const pRes = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=99&methodSettings=15,null,17.5&school=1`);
+            const d = await pRes.json();
+            const t = d.data.timings;
+            
+            document.getElementById('hijri').innerText = `${d.data.date.hijri.day} ${d.data.date.hijri.month.en} ${d.data.date.hijri.year}`;
+            
+            const now = new Date();
+            const curMin = now.getHours() * 60 + now.getMinutes();
+            let activeIdx = 0;
+            
+            salahList.forEach((s, i) => {
+                const [h, m] = t[s.id].split(':').map(Number);
+                if (curMin >= (h * 60 + m)) activeIdx = i;
+            });
+
+            let html = '';
+            salahList.forEach((s, i) => {
+                const active = (i === activeIdx) ? "active" : "";
+                let iqama;
+                if (s.id === 'Sunrise') iqama = 'Ishraq';
+                else if (s.id === 'Maghrib') {
+                    const [h, m] = t[s.id].split(':').map(Number);
+                    const dt = new Date(); dt.setHours(h); dt.setMinutes(m + 5); // Maghrib Iqama +5 mins
+                    iqama = format12Hour(dt.getHours() + ":" + dt.getMinutes());
+                } else iqama = iqamaTimes[s.id];
+
+                html += `<div class="salah-card ${active}">
+                    <div class="name-en">${s.id}</div>
+                    <div class="name-ar">${s.ar}</div>
+                    <div class="time-label">Adhan</div>
+                    <div class="time-adhan">${format12Hour(t[s.id])}</div>
+                    <div class="time-label">Iqamah</div>
+                    <div class="time-iqama">${iqama}</div>
+                </div>`;
+            });
+            document.getElementById('prayer-cards').innerHTML = html;
+        } catch (e) { console.error("Prayer Error", e); }
+    }
+
+    async function updateHadith() {
+        try {
+            const cb = new Date().getTime(); // Cache-buster
+            const [enR, arR] = await Promise.all([
+                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/eng-bukhari.min.json?v=${cb}`),
+                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-bukhari.min.json?v=${cb}`)
+            ]);
+            const en = await enR.json(), ar = await arR.json();
+            const shorts = en.hadiths.filter(h => h.text.length < 240 && h.text.length > 50);
+            const rand = shorts[Math.floor(Math.random() * shorts.length)];
+            const matchedAr = ar.hadiths.find(h => h.hadithnumber === rand.hadithnumber);
+            
+            document.getElementById('ar-hadith').innerText = matchedAr ? matchedAr.text : "الْحَمْدُ لِلَّهِ";
+            document.getElementById('en-hadith').innerText = `"${rand.text}" — Sahih Bukhari`;
+            nextRefresh = 900;
+        } catch (e) { console.error("Hadith Refresh Fail"); }
+    }
+
+    function runClock() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', second:'2-digit', hour12:true });
+        document.getElementById('greg-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+        
+        nextRefresh--;
+        if(nextRefresh <= 0) updateHadith();
+
+        // Ramadan Countdown
+        const ramadan = new Date(2026, 1, 19); // Approx Feb 19, 2026
+        const diff = Math.ceil((ramadan - now)/(1000*60*60*24));
+        document.getElementById('ramadan-countdown').innerText = diff > 0 ? `🌙 ${diff} DAYS UNTIL RAMADAN 1447H` : `🌙 RAMADAN MUBARAK`;
+    }
+
+    // Initialize
+    setInterval(runClock, 1000);
+    setInterval(updateData, 300000); // Refresh weather/prayer every 5 mins
+    updateData(); updateHadith(); runClock();
+</script>
+</body>
+</html>
