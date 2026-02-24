@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>LIC Digital Hub - Horizontal Production</title>
+    <title>LIC Digital Hub - Large TV Production</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Inter:wght@400;700;900&display=swap');
         
@@ -14,207 +14,53 @@
         }
 
         body { 
-            margin: 0; padding: 10px; height: 100vh; 
+            margin: 0; padding: 15px; height: 100vh; 
             display: flex; flex-direction: column; 
             font-family: 'Inter', sans-serif; overflow: hidden; 
             box-sizing: border-box; transition: background 2s ease-in-out;
+            background-color: #f4f7f9;
         }
 
-        /* Themes */
+        /* Weather Themes */
         body.theme-day { background: linear-gradient(180deg, #87CEEB 0%, #f4f7f9 100%); }
-        body.theme-night { background: linear-gradient(180deg, #0a192f 0%, #1e4571 100%); }
+        body.theme-night { background: linear-gradient(180deg, #0a192f 0%, #1e4571 100%); color: white; }
         body.theme-cloudy { background: linear-gradient(180deg, #708090 0%, #bdc3c7 100%); }
 
-        /* Horizontal Header */
+        /* Header Area */
         .header-box { 
-            height: 100px; display: flex; align-items: center; justify-content: space-between; 
-            background: var(--primary-blue); border-radius: 15px; border: 3px solid var(--gold); 
-            padding: 0 20px; color: white; 
+            height: 110px; display: flex; align-items: center; justify-content: space-between; 
+            background: var(--primary-blue); border-radius: 20px; border: 4px solid var(--gold); 
+            padding: 0 30px; color: white; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
         }
-        .header-img { height: 70px; cursor: pointer; }
-        .clock-section { display: flex; align-items: center; gap: 20px; }
-        #clock { font-size: 2.2rem; font-weight: 900; background: #000; padding: 5px 15px; border-radius: 10px; border: 2px solid var(--gold); }
+        .header-img { height: 80px; cursor: pointer; }
+        .clock-section { display: flex; align-items: center; gap: 30px; }
+        #clock { font-size: 2.8rem; font-weight: 900; background: #000; padding: 5px 20px; border-radius: 12px; border: 3px solid var(--gold); color: #fff; }
 
-        /* Prayer Cards Row */
+        /* LARGE PRAYER CARDS */
         .prayer-container { 
-            display: flex; justify-content: space-between; gap: 10px; margin-top: 15px; 
+            display: flex; justify-content: space-between; gap: 15px; margin-top: 20px; 
+            height: 48vh; /* Prayer boxes take up nearly half the screen */
         }
         .salah-card { 
-            flex: 1; background: rgba(255,255,255,0.9); border-radius: 15px; 
-            border: 3px solid var(--gold); padding: 10px; text-align: center; 
-            transition: all 0.3s ease;
+            flex: 1; background: rgba(255,255,255,0.95); border-radius: 25px; 
+            border: 4px solid var(--gold); display: flex; flex-direction: column;
+            justify-content: space-around; padding: 20px 10px; text-align: center; 
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 8px 15px rgba(0,0,0,0.1);
         }
         .salah-card.active { 
-            background: linear-gradient(180deg, #fff9c4 0%, #d4af37 100%); 
-            transform: scale(1.05); z-index: 2; border-color: #b8860b;
+            flex: 1.4; /* Active card is much wider */
+            background: linear-gradient(180deg, #fffde7 0%, #ffd600 100%); 
+            transform: scale(1.02); z-index: 2; border-color: #b8860b;
+            box-shadow: 0 0 40px rgba(212, 175, 55, 0.7);
         }
-        .name-en { font-size: 1.4rem; font-weight: 900; color: var(--primary-blue); }
-        .name-ar { font-family: 'Amiri', serif; font-size: 2rem; color: var(--primary-blue); line-height: 1; }
-        .time-adhan { font-size: 1.8rem; font-weight: 800; margin: 5px 0; }
-        .time-iqama { font-size: 1.6rem; font-weight: 900; color: var(--iqama-green); }
+        .name-en { font-size: 2.2rem; font-weight: 900; color: var(--primary-blue); text-transform: uppercase; }
+        .name-ar { font-family: 'Amiri', serif; font-size: 3.5rem; color: var(--primary-blue); line-height: 0.8; margin: 10px 0; }
+        .time-label { font-size: 1rem; font-weight: 800; opacity: 0.6; text-transform: uppercase; }
+        .time-adhan { font-size: 3rem; font-weight: 800; color: #000; margin: 5px 0; }
+        .time-iqama { font-size: 2.8rem; font-weight: 900; color: var(--iqama-green); background: rgba(46, 125, 50, 0.1); border-radius: 15px; padding: 5px 10px; }
 
-        /* Bottom Row: Hadith & Donation */
-        .bottom-row { display: flex; gap: 15px; margin-top: 15px; flex-grow: 1; min-height: 0; }
+        /* Bottom Row */
+        .bottom-row { display: flex; gap: 20px; margin-top: 20px; flex-grow: 1; min-height: 0; }
         
         .hadith-container { 
-            flex: 2; background: var(--primary-blue); border-radius: 20px; 
-            padding: 20px; color: white; border: 3px solid var(--gold); 
-            display: flex; flex-direction: column; justify-content: center; text-align: center;
-        }
-        .ar-text { font-family: 'Amiri', serif; font-size: 1.6rem; direction: rtl; margin-bottom: 10px; }
-        .en-text { font-size: 1.3rem; font-style: italic; color: var(--gold); font-weight: 700; }
-
-        .donation-box { 
-            flex: 1; background: white; border-radius: 20px; border: 3px solid var(--gold); 
-            display: flex; align-items: center; justify-content: space-around; padding: 15px;
-        }
-
-        .footer { 
-            text-align: center; font-size: 1.1rem; color: var(--gold); 
-            background: var(--primary-blue); margin-top: 10px; padding: 5px; border-radius: 10px;
-        }
-    </style>
-</head>
-<body class="theme-day">
-
-<div class="header-box">
-    <img src="Muhammad.png" class="header-img" onclick="location.reload()">
-    <div class="clock-section">
-        <div style="text-align: right;">
-            <div id="greg-date" style="font-weight: 900;">-- --- ----</div>
-            <div id="hijri" style="color: var(--gold); font-weight: 700;">-- --- ----</div>
-        </div>
-        <div id="clock">00:00:00 AM</div>
-        <div>
-            <div id="temp" style="font-weight: 900; font-size: 1.5rem;">--°C</div>
-            <div id="city-name" style="font-size: 0.9rem; color: var(--gold);">Whitby</div>
-        </div>
-    </div>
-    <img src="Allah.png" class="header-img">
-</div>
-
-<div class="prayer-container" id="prayer-cards"></div>
-
-<div class="bottom-row">
-    <div class="hadith-container">
-        <div class="ar-text" id="ar-hadith">الْحَمْدُ لِلَّهِ</div>
-        <div class="en-text" id="en-hadith">Loading inspired wisdom...</div>
-    </div>
-
-    <div class="donation-box">
-        <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=https://www.ajaxmasjid.ca" style="height: 140px; border: 2px solid var(--primary-blue); border-radius: 10px;">
-        <div style="text-align: center;">
-            <div style="font-size: 1.2rem; font-weight: 900; color: var(--primary-blue);">SCAN TO DONATE</div>
-            <div id="percent-text" style="font-size: 2.5rem; font-weight: 900; color: var(--gold);">7%</div>
-            <div style="font-size: 0.9rem; font-weight: 700;">GOAL: $1.4M</div>
-        </div>
-    </div>
-</div>
-
-<div class="footer" id="ramadan-countdown">info@ajaxmasjid.ca | www.ajaxmasjid.ca</div>
-
-<script>
-    const iqamaTimes = { Fajr: "6:15 AM", Dhuhr: "1:00 PM", Asr: "4:45 PM", Isha: "8:00 PM" };
-    const salahList = [{id:'Fajr',ar:'الفجر'},{id:'Sunrise',ar:'الشروق'},{id:'Dhuhr',ar:'الظهر'},{id:'Asr',ar:'العصر'},{id:'Maghrib',ar:'المغرب'},{id:'Isha',ar:'العشاء'}];
-    let nextRefresh = 900;
-
-    function format12Hour(timeStr) {
-        if (!timeStr) return "--:--";
-        let [h, m] = timeStr.split(':').map(Number);
-        const ampm = h >= 12 ? 'PM' : 'AM';
-        h = h % 12 || 12;
-        return `${h}:${m.toString().padStart(2, '0')} ${ampm}`;
-    }
-
-    async function updateAll() {
-        const lat = 43.8975, lng = -78.9429; // Whitby
-        
-        // 1. Weather
-        try {
-            const wRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lng}&current=temperature_2m,is_day,weather_code&timezone=America/Toronto`);
-            const wData = await wRes.json();
-            document.getElementById('temp').innerText = Math.round(wData.current.temperature_2m) + "°C";
-            const b = document.body;
-            b.classList.remove('theme-day','theme-night','theme-cloudy');
-            if (wData.current.weather_code >= 3) b.classList.add('theme-cloudy');
-            else if (wData.current.is_day) b.classList.add('theme-day');
-            else b.classList.add('theme-night');
-        } catch (e) { console.error("Weather Error"); }
-
-        // 2. Prayer Times (15-degree Fajr)
-        try {
-            const pRes = await fetch(`https://api.aladhan.com/v1/timings?latitude=${lat}&longitude=${lng}&method=99&methodSettings=15,null,17.5&school=1`);
-            const d = await pRes.json();
-            const t = d.data.timings;
-            
-            document.getElementById('hijri').innerText = `${d.data.date.hijri.day} ${d.data.date.hijri.month.en} ${d.data.date.hijri.year}`;
-            
-            const now = new Date();
-            const curMin = now.getHours() * 60 + now.getMinutes();
-            let activeIdx = 0;
-            
-            salahList.forEach((s, i) => {
-                const [h, m] = t[s.id].split(':').map(Number);
-                if (curMin >= (h * 60 + m)) activeIdx = i;
-            });
-
-            let html = '';
-            salahList.forEach((s, i) => {
-                const active = (i === activeIdx) ? "active" : "";
-                let iqama;
-                if (s.id === 'Sunrise') iqama = 'Ishraq';
-                else if (s.id === 'Maghrib') {
-                    const [h, m] = t[s.id].split(':').map(Number);
-                    const dt = new Date(); dt.setHours(h); dt.setMinutes(m + 5);
-                    iqama = format12Hour(dt.getHours() + ":" + dt.getMinutes());
-                } else iqama = iqamaTimes[s.id];
-
-                html += `<div class="salah-card ${active}">
-                    <div class="name-en">${s.id}</div>
-                    <div class="name-ar">${s.ar}</div>
-                    <div class="time-adhan">${format12Hour(t[s.id])}</div>
-                    <div style="font-size: 0.7rem; font-weight: 800; opacity: 0.7;">IQAMAH</div>
-                    <div class="time-iqama">${iqama}</div>
-                </div>`;
-            });
-            document.getElementById('prayer-cards').innerHTML = html;
-        } catch (e) { console.error("Prayer Error"); }
-    }
-
-    async function updateHadith() {
-        try {
-            const cb = new Date().getTime();
-            const [enR, arR] = await Promise.all([
-                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/eng-bukhari.min.json?v=${cb}`),
-                fetch(`https://cdn.jsdelivr.net/gh/fawazahmed0/hadith-api@1/editions/ara-bukhari.min.json?v=${cb}`)
-            ]);
-            const en = await enR.json(), ar = await arR.json();
-            const shorts = en.hadiths.filter(h => h.text.length < 220 && h.text.length > 40);
-            const rand = shorts[Math.floor(Math.random() * shorts.length)];
-            const matchedAr = ar.hadiths.find(h => h.hadithnumber === rand.hadithnumber);
-            
-            document.getElementById('ar-hadith').innerText = matchedAr ? matchedAr.text : "الْحَمْدُ لِلَّهِ";
-            document.getElementById('en-hadith').innerText = `"${rand.text}" — Sahih Bukhari`;
-            nextRefresh = 900;
-        } catch (e) { console.error("Hadith Error"); }
-    }
-
-    function runClock() {
-        const now = new Date();
-        document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit', second:'2-digit', hour12:true });
-        document.getElementById('greg-date').innerText = now.toLocaleDateString('en-US', { weekday: 'long', month: 'short', day: 'numeric' });
-        
-        nextRefresh--;
-        if(nextRefresh <= 0) updateHadith();
-
-        const ramadan = new Date(2026, 1, 19);
-        const diff = Math.ceil((ramadan - now)/(1000*60*60*24));
-        document.getElementById('ramadan-countdown').innerText = diff > 0 ? `🌙 ${diff} DAYS UNTIL RAMADAN` : `🌙 RAMADAN MUBARAK`;
-    }
-
-    setInterval(runClock, 1000);
-    setInterval(updateAll, 300000); // 5 mins
-    updateAll(); updateHadith(); runClock();
-</script>
-</body>
-</html>
+            flex: 2
